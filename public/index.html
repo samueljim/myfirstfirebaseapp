@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>Welcome to Firebase Hosting</title>
+    <title>Welcome to Samuel Hosting</title>
     <link rel="stylesheet" type="text/css" href="style.css">
   </head>
   <body>
@@ -12,7 +12,11 @@
       </div>
       <progress value="0"  max="100" id="uploader">0%</progress>
 
-      <input type="file" value="upload" id="fileButton" />
+      <input type="file" value="upload" id="fileButton"></input>
+      <br>
+      <a id="cancelButton">Cancel upload</a>
+      <br>
+      <input id="output" value="" type="text"></input>
       <ul>
       </ul>
 
@@ -33,6 +37,9 @@
   //Get elements
   var uploader = document.getElementById('uploader');
   var fileButton = document.getElementById('fileButton');
+  var pauseButton = document.getElementById('pauseButton');
+  var output = document.getElementById('output');
+
 
   // Listen for file selection
   fileButton.addEventListener('change', function(e) {
@@ -50,6 +57,20 @@
       function progress(snapshot){
         var percentage = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
         uploader.value = percentage;
+        document.getElementById('cancelButton').style.visibility = "visible";
+        console.log('Upload is ' + percentage + '% done');
+        document.getElementById("cancelButton").addEventListener("click", function(){
+          task.cancel();
+        });
+        switch (snapshot.state) {
+          case firebase.storage.TaskState.PAUSED: // or 'paused'
+            console.log('Upload is paused');
+        break;
+          case firebase.storage.TaskState.RUNNING: // or 'running'
+            console.log('Upload is running');
+        break;
+      }
+        uploader.value = percentage;
 
       },
 
@@ -58,10 +79,17 @@
       },
 
       function complete(){
-
+        document.getElementById('cancelButton').style.visibility = "hidden";
+        var downloadURL = task.snapshot.downloadURL;
+        document.getElementById("output").value = downloadURL;
+        document.getElementById('output').style.visibility = "visible";
+        //document.write(downloadURL);
       }
     );
-  });
+
+  }
+
+);
 
 </script>
 
